@@ -1,0 +1,29 @@
+version: '3'
+networks:
+    work_default:
+        external: true
+services:
+    backup:
+        container_name: backup
+        #    image: daihaoxiaofei/mysqldump:1
+        build:
+            context: ./
+            dockerfile: Dockerfile
+        restart: always
+        volumes:
+            - ./backups:/backups # 备份文件
+            - ./config.yaml:/config.yaml  # 配置文件
+        networks:
+            - work_default
+
+
+# docker-compose stop
+# docker-compose rm -f
+# docker rmi backups_backup
+# docker-compose up -d
+
+# docker-compose stop & docker-compose rm -f & docker rmi backups_backup & docker-compose up -d
+
+# docker creat network myNetwork
+# docker network create myNetwork
+# docker network ls

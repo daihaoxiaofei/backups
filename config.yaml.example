@@ -1,0 +1,15 @@
+# 配置文件模板 请按照这个格式复制一份改名为:config.yaml放到本目录使用
+Url:
+CKey: 加密密钥
+Cron: "*/5 * * * *" # 备份时间规则 为空则默认 = [0,59),* * * *
+Tables:
+  - Host: 数据库地址
+    TName: 表名
+    UName: 用户名
+    Passwd: 密码
+
+  - Host: 数据库地址2
+    TName: 表名2
+    UName: 用户名
+    Passwd: 密码
+
