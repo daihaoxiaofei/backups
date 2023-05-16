@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// 备份
+// Dump 备份
 func Dump(TM config.Table) {
 	// 文件
 	date := time.Now().Format(format)

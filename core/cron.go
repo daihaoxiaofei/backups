@@ -1,22 +1,25 @@
 package core
 
 import (
-	"backups/config"
-	"github.com/robfig/cron/v3"
 	"log"
 	"math/rand"
-	"os"
 	"strconv"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/robfig/cron/v3"
+
+	"backups/config"
 )
 
 var (
 	format = `2006-01-02 15_04_05` // 显示格式
-	path = `./backups/`            // 备份目录
+	path   = `./backups/`          // 备份目录
 )
 
 func Cron() {
 	checkDir()
+	checkLink()
 	c := cron.New()
 
 	if config.C.Cron == `` {
@@ -26,7 +29,14 @@ func Cron() {
 		config.C.Cron = strconv.Itoa(Minute) + " * * * *"
 	}
 	_, err := c.AddFunc(config.C.Cron, func() {
-		backup()
+		// 备份
+		for _, TM := range config.C.Tables {
+			go Dump(TM)
+		}
+		// 清理备份
+		for _, TM := range config.C.Tables {
+			go ClearFile(TM.TName)
+		}
 	})
 	if err != nil {
 		log.Println(err)
@@ -35,33 +45,4 @@ func Cron() {
 	log.Println(`开始备份程序`)
 	c.Start()
 	select {}
-}
-
-// 检查文件夹创建情况
-func checkDir() {
-	for _, TM := range config.C.Tables {
-		fileDir := path + TM.TName
-		s, err := os.Stat(fileDir)
-		if err != nil || !s.IsDir() {
-			err = os.MkdirAll(fileDir, os.ModePerm)
-			if err != nil {
-				log.Println(`路径创建失败:` + err.Error())
-				return
-			} else {
-				log.Println(`路径创建: ` + fileDir)
-			}
-		}
-		log.Println(`备份数据库: `, TM.Host, TM.TName)
-	}
-}
-
-func backup() {
-	// 备份
-	for _, TM := range config.C.Tables {
-		go Dump(TM)
-	}
-	// 清理备份
-	for _, TM := range config.C.Tables {
-		go ClearFile(TM.TName)
-	}
 }

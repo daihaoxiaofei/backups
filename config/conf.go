@@ -25,6 +25,7 @@ type c struct {
 	Url    string  `yaml:"Url"`
 	CKey   string  `yaml:"CKey"`
 	Cron   string  `yaml:"Cron"` // 备份时间规则
+	Hour   int     `yaml:"Hour"` // 保留的最佳时刻 如凌晨6点
 	Tables []Table `yaml:"Tables"`
 }
 
@@ -33,13 +34,23 @@ var C c
 func init() {
 	confPath := "config.yaml"
 
-	if (runtime.GOOS == `linux` && os.Args[0][len(os.Args[0])-5:] == `.test`) ||
-		runtime.GOOS == `windows` && filepath.Base(os.Args[0])[:7] == `___Test` {
-		_, onPath, _, _ := runtime.Caller(0)
-		// _, onPath, _, _ := runtime.Caller(0)
-		onDir := filepath.Dir(onPath) // 返回本文件所在路径
-		confPath = filepath.Join(onDir, `..`, `config.yaml`)
+	notMain := false
+	switch runtime.GOOS {
+	case `linux`:
+		if os.Args[0][len(os.Args[0])-5:] == `.test` {
+			notMain = true
+		}
+	case `windows`:
+		nowPath := filepath.Base(os.Args[0])
+		if nowPath[:7] == `___Test` || nowPath[len(nowPath)-9:] == `.test.exe` {
+			notMain = true
+		}
 	}
+	if notMain {
+		_, onPath, _, _ := runtime.Caller(0)
+		confPath = filepath.Join(onPath, `..`, `..`, `config.yaml`)
+	}
+
 	// 读取文件所有内容装到 []byte 中
 	bytes, err := ioutil.ReadFile(confPath)
 	if err != nil {
@@ -57,7 +68,7 @@ func init() {
 	// 如果有远程配置
 	if C.Url != `` {
 		var client = &http.Client{
-			Timeout: 5 * time.Second, // 超时时间：5秒
+			Timeout: 5 * time.Second, // 超时时间:5秒
 			Transport: &http.Transport{ // 解决https证书
 				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 			},

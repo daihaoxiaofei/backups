@@ -1,6 +1,6 @@
 version: '3'
 networks:
-    work_default:
+    service_default:
         external: true
 services:
     backup:
@@ -11,10 +11,10 @@ services:
             dockerfile: Dockerfile
         restart: always
         volumes:
-            - ./backups:/backups # 备份文件
+            - /e/local/storage/service/backups:/backups # 备份文件
             - ./config.yaml:/config.yaml  # 配置文件
         networks:
-            - work_default
+            - service_default
 
 
 # docker-compose stop

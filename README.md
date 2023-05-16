@@ -28,7 +28,9 @@
                 当日 前一天 前2天凌晨6点
                 当月1号凌晨6点 前一月 前2月 前3月 凌晨6点
                 其余会每小时清理
-        注: 会根据自身要求随时更改 如有需要请自行前往: github 修改源码重新编译
+        注: 会根据自身要求随时更改 有偏差恕不另行通知 如有需要请自行前往: github 修改源码重新编译
 
-
+### 备注:
+    # 重调本地
+    docker stop backup; docker rm backup; docker rmi backups_backup; docker-compose up -d
 
